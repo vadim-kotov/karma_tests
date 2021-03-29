@@ -1,4 +1,4 @@
-xdescribe('function loadNodeSubtreeByUUID(uuid)', () => {
+describe('function loadNodeSubtreeByUUID(uuid)', () => {
     beforeEach(() => {
         cache = [];
     });
@@ -6,7 +6,6 @@ xdescribe('function loadNodeSubtreeByUUID(uuid)', () => {
     describe('uuid in cache', () => {
         it('should return node from cache[uuid]', () => {
             let uuid = getStartNode();
-            console.log(uuid);
             let _node = loadNodeByUUID(uuid);
             expect(_node).to.not.be.null;
             let node = $.parseJSON(_node);
@@ -19,27 +18,43 @@ xdescribe('function loadNodeSubtreeByUUID(uuid)', () => {
     });
 
     describe('uuid not in cache', () => {
-        it('when node with such uuid exists\nshould return this node & should add this node to cache', () => {
-            let uuid = getStartNode();
-            let node = $.parseJSON(loadNodeByUUID(uuid));    //object
-            expect(node).to.not.be.null;
+        describe('node with such uuid exists', () => {
+            it('should return this node', () => {
+                let uuid = getStartNode();
+                let node = $.parseJSON(loadNodeByUUID(uuid));    //object
+                expect(node).to.not.be.null;
+    
+                expect(cache).to.not.have.property(uuid);
+    
+                let loadedNode = loadNodeSubtreeByUUID(uuid);
+    
+                expect(cache).to.have.property(uuid);
+                expect(cache[uuid]).to.deep.equal(loadedNode);
+            });
 
-            expect(cache).to.not.have.property(uuid);
-
-            let loadedNode = loadNodeSubtreeByUUID(uuid);
-
-            expect(cache).to.have.property(uuid);
-            expect(cache[uuid]).to.deep.equal(loadedNode);
+            it('should add this node to cache', () => {
+                let uuid = getStartNode();
+                let node = $.parseJSON(loadNodeByUUID(uuid));    //object
+                expect(node).to.not.be.null;
+    
+                expect(cache).to.not.have.property(uuid);
+    
+                let loadedNode = loadNodeSubtreeByUUID(uuid);
+    
+                expect(loadedNode.uuid).to.equal(node.uuid);
+            });
         });
-
-        it('should return `undefined` when node with such uuid doesn`t exist', () => {
-            expect(cache).to.not.have.property('foo');
-
-            let loadedNode = loadNodeSubtreeByUUID('foo');
-
-            expect(loadedNode).to.be.undefined;
-            expect(cache).to.not.have.property('foo');
+        describe('node with such uuid doesn`t exist' ,() => {
+            it('should return `undefined`', () => {
+                expect(cache).to.not.have.property('foo');
+    
+                let loadedNode = loadNodeSubtreeByUUID('foo');
+    
+                expect(loadedNode).to.be.undefined;
+                expect(cache).to.not.have.property('foo');
+            });
         });
+        
     });
 });
 
