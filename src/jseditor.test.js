@@ -286,7 +286,7 @@ describe('function replaceDummies(elem1, elem2)', () => {
     var uuid;
 
     beforeEach(() => {
-        uuid = getStartNode();
+        uuid = faker.random.uuid();
     });
 
     afterEach(() => {
