@@ -152,7 +152,7 @@ describe('function updateTree(uuid, deep, path)', () => {
         it('should update this block', () => {
             var stubConstructTree = sinon.stub(window, 'constructTree').callsFake((uuid) => {
                 var e = $('<div>', {
-                    id: "block-" + uuid,
+                    id: 'block-' + uuid,
                     class: 'testReplaced'
                 });
                 return e;
@@ -260,18 +260,62 @@ describe('function updateTree(uuid, deep, path)', () => {
     });
 
     xit('should update `all_active_elems` list', () => {
-
+        
     });
 
     xdescribe('there is not focused elements', () => {
         it('should set focus to first element(with index 0)', () => {
-
+            [{
+                all_active_elems: null,
+                keyboard_focus: -1
+            }, {
+                all_active_elems: $('.supported-node'),
+                keyboard_focus: -1
+            }]
         });
     });
 
     xdescribe('focused element was not removed', () => {
         it('should set focus on this element', () => {
 
+        });
+    });
+});
+
+describe('function replaceDummies(elem1, elem2)', () => {
+    var uuid;
+
+    beforeEach(() => {
+        uuid = getStartNode();
+    });
+
+    afterEach(() => {
+        sinon.restore();
+    });
+
+    describe('dummie elem2 is not `falsy`', () => {
+        it('should replace parent of this this dummie', () => {
+            $('body').append('<div id="test">');
+            var parent = $('<div>', {
+                class: 'testNotReplaced'
+            });
+            $('#test').append(parent);
+            var elem2 = $('<div>', {
+                id: 'smth-' + uuid,
+            });
+            parent.append(elem2);
+
+            var stubConstructTree = sinon.stub(window, 'constructTree').callsFake((uuid) => {
+                var e = $('<div>', {
+                    id: 'block-' + uuid,
+                    class: 'testReplaced'
+                });
+                return e;
+            });
+
+            replaceDummies(null, elem2);
+
+            expect($('#block-' + uuid).hasClass('testReplaced')).to.be.true;
         });
     });
 });
