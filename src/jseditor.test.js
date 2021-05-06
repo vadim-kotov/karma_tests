@@ -1,4 +1,4 @@
-describe('function loadNodeSubtreeByUUID(uuid)', () => {
+xdescribe('function loadNodeSubtreeByUUID(uuid)', () => {
     beforeEach(() => {
         cache = [];
     });
@@ -58,7 +58,7 @@ describe('function loadNodeSubtreeByUUID(uuid)', () => {
     });
 });
 
-describe('function updateTree(uuid, deep, path)', () => {
+xdescribe('function updateTree(uuid, deep, path)', () => {
     var uuid;
 
     beforeEach(() => {
@@ -284,38 +284,131 @@ describe('function updateTree(uuid, deep, path)', () => {
 
 describe('function replaceDummies(elem1, elem2)', () => {
     var uuid;
+    var parent, elem2;
+    var stubConstructTree;
 
     beforeEach(() => {
-        uuid = faker.random.uuid();
+        $('body').append('<div id="test">');
     });
 
     afterEach(() => {
+        //$('#test').remove();
         sinon.restore();
     });
 
-    describe('dummie elem2 is not `falsy`', () => {
-        it('should replace parent of this this dummie', () => {
-            $('body').append('<div id="test">');
-            var parent = $('<div>', {
-                class: 'testNotReplaced'
+    xdescribe('dummie elem2 is not `falsy`', () => {
+        beforeEach(() => {
+            uuid = faker.random.uuid();
+            
+            parent = $('<div>', {
+                id: 'block-' + uuid,
+                class: 'testNotReplaced supported-node'
             });
             $('#test').append(parent);
-            var elem2 = $('<div>', {
-                id: 'smth-' + uuid,
+            elem2 = $('<div>', {
+                id: 'dummy-' + uuid,
+                class: 'dummy' //focused'
             });
             parent.append(elem2);
 
-            var stubConstructTree = sinon.stub(window, 'constructTree').callsFake((uuid) => {
+            
+        });
+
+        it('should replace parent of this this dummie', () => {
+            stubConstructTree = sinon.stub(window, 'constructTree').callsFake((uuid) => {
                 var e = $('<div>', {
                     id: 'block-' + uuid,
-                    class: 'testReplaced'
+                    class: 'testReplaced supported-node'
                 });
+                var el2 = elem2.clone();
+                el2.attr('id', 'node-' + extractUUID(elem2.attr('id')));
+                el2.removeClass('dummy');
+                el2.addClass('supported-node');
+                e.append(el2);
+                
                 return e;
             });
 
             replaceDummies(null, elem2);
 
             expect($('#block-' + uuid).hasClass('testReplaced')).to.be.true;
+        });
+    });
+
+    describe('dummie elem2 is `falsy`', () => {
+        var UUIDs = [];
+        var numOfUUIDs;
+        var block1, elem1;
+        var stubConstructTree, stubIsInViewport;
+
+        beforeEach(() => {
+            numOfUUIDs = 3;
+            for(var i = 0; i < numOfUUIDs; i++) {
+                UUIDs[i] = faker.random.uuid();
+            }
+
+            block1 = $('<div id="' + 'block-' + UUIDs[0] + '" class="block supported-node">');
+            elem1 = $('<div id="' + 'dummy-' + UUIDs[0] + '" class="focused">');
+            $('#test').append(block1);
+            block1.append(elem1);
+            elem1.append(
+                '<div id="' + 'block-' + UUIDs[1] + '" class="block supported-node">' +
+                    '<div id="' + 'dummy-' + UUIDs[1] + '" class="dummy"/>' +
+                '</div>' +
+                '<div id="' + 'block-' + UUIDs[2] + '" class="block supported-node">' +
+                    '<div id="' + 'dummy-' + UUIDs[2] + '" class="dummy">' +
+                '</div>'
+            );
+
+            stubConstructTree = sinon.stub(window, 'constructTree').callsFake((uuid) => {
+                var e = $('<div>', {
+                    id: 'block-' + uuid,
+                    class: 'testReplaced supported-node'
+                });
+                var elem1Copy = elem1.clone();
+                elem1Copy.attr('id', 'node-' + extractUUID(elem1.attr('id')));
+                elem1Copy.removeClass('dummy');
+                elem1Copy.addClass('supported-node');
+                e.append(elem1Copy);
+                // e.append($('#dummy-' + uuid).children());
+                return e;
+            });
+
+            stubIsInViewport = sinon.stub($.fn, 'isInViewport').returns(true);
+        });
+
+        describe('elem1 has class `dummy`', () => {
+            it('shold replace elem1 parent', () => {
+                elem1.addClass('dummy');
+
+                replaceDummies(elem1);
+
+                expect($('#dummy-' + UUIDs[0]).length).to.equal(0);
+                expect($('#block-' + UUIDs[0]).hasClass('testReplaced')).to.be.true;
+
+                expect($('#dummy-' + UUIDs[1]).length).to.equal(1);
+                expect($('#dummy-' + UUIDs[2]).length).to.equal(1);
+                expect($('#block-' + UUIDs[1]).hasClass('testReplaced')).to.be.false;
+                expect($('#block-' + UUIDs[2]).hasClass('testReplaced')).to.be.false;
+            });
+        });
+
+        xdescribe('elem1 doesn`t have class `dummy`', () => {
+            it('should replace all dummy children trees', () => {
+                // replaceDummies($('#dummy-' + UUIDs[0]));
+                replaceDummies(elem1);
+
+                expect($('#dummy-' + UUIDs[0]).length).to.equal(1);
+
+                expect($('#dummy-' + UUIDs[1]).length).to.equal(0);
+                expect($('#dummy-' + UUIDs[2]).length).to.equal(0);
+                expect($('#block-' + UUIDs[1]).hasClass('testReplaced')).to.be.true;
+                expect($('#block-' + UUIDs[2]).hasClass('testReplaced')).to.be.true;
+            });
+        });
+
+        describe('there aren`t any dummies in elem1 tree', () => {
+
         });
     });
 });
