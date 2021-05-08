@@ -12,3 +12,5 @@ function loadNodeTreeByUUID(uuid) {
 };
 
 function hideMenu() { return true; }
+
+function getSelectdNode() { return null; }
