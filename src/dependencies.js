@@ -13,4 +13,8 @@ function loadNodeTreeByUUID(uuid) {
 
 function hideMenu() { return true; }
 
-function getSelectdNode() { return null; }
+function getSelectedNode() { return null; }
+
+function getParentUUID(uuid) { return null; }
+
+function isNodeHeader(uuid) { return null; }

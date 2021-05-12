@@ -18,7 +18,7 @@ describe('function loadNodeSubtreeByUUID(uuid)', () => {
     });
 
     describe('uuid not in cache', () => {
-        describe('node with such uuid exists', () => {
+        describe('node with passed uuid exists', () => {
             it('should return this node', () => {
                 let uuid = getStartNode();
                 let node = $.parseJSON(loadNodeByUUID(uuid));    //object
@@ -44,7 +44,7 @@ describe('function loadNodeSubtreeByUUID(uuid)', () => {
                 expect(loadedNode.uuid).to.equal(node.uuid);
             });
         });
-        describe('node with such uuid doesn`t exist' ,() => {
+        describe('node with passed uuid doesn`t exist' ,() => {
             it('should return `undefined`', () => {
                 expect(cache).to.not.have.property('foo');
     
